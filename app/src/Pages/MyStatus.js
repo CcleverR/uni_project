@@ -6,4 +6,4 @@ const MyStatus = () => {
 
 export default MyStatus;
 
-//boolean으로 내 정보 들어갈 수있게끔
+//boolean으로 내 정보 들어갈 수 있게끔
