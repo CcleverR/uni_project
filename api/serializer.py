@@ -10,8 +10,10 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer): #토큰을 생성합니다. (구체적으로는 access와 refresh 토큰들).
-                                                              # 만약 정상적인 username과 password가 들어온다면 access 토큰을 해석해서 username과 email을 가져옵니다.
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer): 
+    #토큰을 생성합니다. (구체적으로는 access와 refresh 토큰들). 
+    # 만약 정상적인 username과 password가 들어온다면 access 토큰을 해석해서 username과 email을 가져옵니다.
+
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
@@ -20,7 +22,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer): #토큰을 생성�
         token['email'] = user.email
         return token
 
-class RegisterSerializer(serializers.ModelSerializer): # 기본적으로 데이터베이스에 사용자 정보를 저장합니다. (회원가입)
+class RegisterSerializer(serializers.ModelSerializer): 
+    # 기본적으로 데이터베이스에 사용자 정보를 저장합니다. (회원가입)
     password = serializers.CharField(
         write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
