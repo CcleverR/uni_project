@@ -1,86 +1,73 @@
-// import React from "react";
-// import "./styles.css";
-import React, { useState } from 'react';
-
-export default function Loginn() {
-  let userId = document.querySelector('#userId');
-	let userPw = document.querySelector('#userPw'); //아이디 중복 확인 버튼
-
-	const [inputs, setInputs] = useState({  
-        username: '',
-        userPW: '',
-    });
-
-	const onChange = (e) => {
-		const { name, value } = e.target  
-		const nextInputs = { ...inputs,  [name]: value,}
-		setInputs(nextInputs);      
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+ 
+function Loginn() {
+    const [inputId, setInputId] = useState('')
+    const [inputPw, setInputPw] = useState('')
+ 
+    const handleInputId = (e) => {
+        setInputId(e.target.value)
     }
-
-	function letsLogin() {
-		if(inputs.userId===""){
-			alert("아이디를 입력해주세요.");
-			return;
-		}else if(inputs.userPw==="false"){
-			alert("비밀번호를 입력해주세요");
-			return;
-		}else{
-		   fetch("/login", { //원하는 주소 입력
-			   method: 'post',
-			   headers: {
-				   'content-type': 'application/json'
-			   },
-			   body : JSON.stringify({
-					userId : inputs.username,
-				   userPW : inputs.userPW
-			   })
-		   }).then(res => res.json())
-			   .then(response => {
-				console.log(response.Authorization);
-				if(response.Authorization==null){
-                    alert("아이디 혹은 비밀번호를 확인해주세요.");
-                }else{
-                   alert("로그인 되었습니다");
-				   	window.localStorage.setItem("Authorization", response.Authorization);
-                    window.location.href="/home";
-                }
-			   });
-		}
-	}
-    
-    return (
-	<div className="userLoginBox" >
-		<div className="form-box login-register-form-element" id="userLoginBox_in">
-			
-			<h2 className="form-box-title">계정 로그인</h2>
-	
-			<form className="form" id="loginFrm" >
-				<div className="form-row">
-					<div className="form-item">
-						<div className="form-input">
-							<input type="text" id="userId" name="username" placeholder="아이디" onChange={onChange}/>
-						</div>
-					</div>
-				</div>
-
-				<div className="form-row">
-					<div className="form-item">
-						<div className="form-input">
-							<input type="password" id="userPw" name="userPW" placeholder="비밀번호" onChange={onChange}/>
-						</div>
-					</div>
-				</div>
-
-				
-				<div className="form-row">
-					<div className="form-item">
-						<input type="button" className="button medium secondary" onClick={letsLogin} id="loginBtn"  value="로그인"/>
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
-
-
-  );
+ 
+    const handleInputPw = (e) => {
+        setInputPw(e.target.value)
+    }
+ 
+    const onClickLogin = () => {
+        console.log('click login')
+        console.log('ID : ', inputId)
+        console.log('PW : ', inputPw)
+        axios.post('/user_inform/onLogin', null, {
+            params: {
+            'user_id': inputId,
+            'user_pw': inputPw
+            }
+        })
+        .then(res => {
+            console.log(res)
+            console.log('res.data.userId :: ', res.data.userId)
+            console.log('res.data.msg :: ', res.data.msg)
+            if(res.data.userId === undefined){
+                // id 일치하지 않는 경우 userId = undefined, msg = '입력하신 id 가 일치하지 않습니다.'
+                console.log('======================',res.data.msg)
+                alert('입력하신 id 가 일치하지 않습니다.')
+            } else if(res.data.userId === null){
+                // id는 있지만, pw 는 다른 경우 userId = null , msg = undefined
+                console.log('======================','입력하신 비밀번호 가 일치하지 않습니다.')
+                alert('입력하신 비밀번호 가 일치하지 않습니다.')
+            } else if(res.data.userId === inputId) {
+                // id, pw 모두 일치 userId = userId1, msg = undefined
+                console.log('======================','로그인 성공')
+                sessionStorage.setItem('user_id', inputId)
+            }
+            // 작업 완료 되면 페이지 이동(새로고침)
+            document.location.href = '/'
+        })
+        .catch()
+    }
+ 
+     useEffect(() => {
+         axios.get('/user_inform/login')
+         .then(res => console.log(res))
+         .catch()
+     },[])
+ 
+    return(
+        <div>
+            <h2>Login</h2>
+            <div>
+                <label htmlFor='input_id'>ID : </label>
+                <input type='text' name='input_id' value={inputId} onChange={handleInputId} />
+            </div>
+            <div>
+                <label htmlFor='input_pw'>PW : </label>
+                <input type='password' name='input_pw' value={inputPw} onChange={handleInputPw} />
+            </div>
+            <div>
+                <button type='button' onClick={onClickLogin}>Login</button>
+            </div>
+        </div>
+    )
 }
+ 
+export default Loginn;
